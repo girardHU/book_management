@@ -2,19 +2,30 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
 use App\Repository\CategoryRepository;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
-use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     denormalizationContext={"groups"={"category:create"}},
+ *     normalizationContext={"groups"={"category:read"}}
+ * )
+ * @ApiFilter(
+ *     SearchFilter::class,
+ *     properties={"username": "exact"}
+ * )
  * @ORM\Entity(repositoryClass=CategoryRepository::class)
  */
 class Category
 {
     /**
+     * @Groups({"category:read", "book:read"})
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
@@ -22,26 +33,31 @@ class Category
     private $id;
 
     /**
+     * @Groups({"category:create", "category:read", "book:read"})
      * @ORM\Column(type="string", length=128)
      */
     private $name;
 
     /**
+     * @Groups({"category:read", "book:read"})
      * @ORM\Column(type="string", length=128)
      */
     private $slug;
 
     /**
+     * @Groups({"category:create", "category:read", "book:read"})
      * @ORM\Column(type="string", length=255)
      */
     private $description;
 
     /**
+     * @Groups({"category:read"})
      * @ORM\Column(type="datetime")
      */
     private $createdAt;
 
     /**
+     * @Groups({"category:read"})
      * @ORM\Column(type="datetime")
      */
     private $updatedAt;
@@ -54,6 +70,8 @@ class Category
     public function __construct()
     {
         $this->books = new ArrayCollection();
+        $this->createdAt = new \DateTime('now');
+        $this->updatedAt = new \DateTime('now');
     }
 
     public function getId(): ?int

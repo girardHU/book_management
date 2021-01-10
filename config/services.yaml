@@ -29,3 +29,18 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    App\EventListener\UserSubscriber:
+        tags:
+            - { name: 'doctrine.event_subscriber'}
+    App\EventListener\BookSubscriber:
+        tags:
+            - { name: 'doctrine.event_subscriber' }
+    App\EventListener\AuthorSubscriber:
+        tags:
+            - { name: 'doctrine.event_subscriber' }
+    App\EventListener\CategorySubscriber:
+        tags:
+            - { name: 'doctrine.event_subscriber' }
+    App\EventListener\TagSubscriber:
+        tags:
+            - { name: 'doctrine.event_subscriber' }

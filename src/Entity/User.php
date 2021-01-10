@@ -2,16 +2,19 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
-use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
- * @ApiResource(
- *     attributes={
- *         "filters"={"username"}
- *     }
+ * @ApiResource()
+ * @ApiFilter(
+ *     SearchFilter::class,
+ *     properties={"username": "exact"}
  * )
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @ORM\Table(name="`user`")
@@ -26,6 +29,13 @@ class User implements UserInterface
     private $id;
 
     /**
+     * @Assert\Length(
+     *     min = 3,
+     *     max = 180,
+     *     minMessage = "Votre username fait {{ value }} caracteres quand le minimum est {{ limit }}.",
+     *     maxMessage = "Votre username fait {{ value }} caracteres quand le maximum est {{ limit }}."
+     * )
+     * @Assert\NotBlank(message="Le champ username est obligatoire.")
      * @ORM\Column(type="string", length=180, unique=true)
      */
     private $username;
@@ -36,25 +46,64 @@ class User implements UserInterface
     private $roles = [];
 
     /**
+     * @Assert\NotBlank(message="Le champ password est obligatoire.")
      * @var string The hashed password
      * @ORM\Column(type="string")
      */
     private $password;
 
     /**
+     * @Assert\Length(
+     *     min = 6,
+     *     max = 128,
+     *     minMessage = "Votre email fait {{ value }} caracteres quand le minimum est {{ limit }}.",
+     *     maxMessage = "Votre email fait {{ value }} caracteres quand le maximum est {{ limit }}."
+     * )
+     * @Assert\Email(message="La syntaxe de votre email n'est pas reconnue.")
+     * @Assert\NotBlank(message="Le champ email est obligatoire.")
      * @ORM\Column(type="string", length=128)
      */
     private $email;
 
     /**
+     * @Assert\Length(
+     *     min = 2,
+     *     max = 128,
+     *     minMessage = "Votre firstname fait {{ value }} caracteres quand le minimum est {{ limit }}.",
+     *     maxMessage = "Votre firstname fait {{ value }} caracteres quand le maximum est {{ limit }}."
+     * )
+     * @Assert\NotBlank(message="Le champ firstname est obligatoire.")
      * @ORM\Column(type="string", length=128)
      */
     private $firstname;
 
     /**
+     * @Assert\Length(
+     *     min = 2,
+     *     max = 128,
+     *     minMessage = "Votre lastname fait {{ value }} caracteres quand le minimum est {{ limit }}.",
+     *     maxMessage = "Votre lastname fait {{ value }} caracteres quand le maximum est {{ limit }}."
+     * )
+     * @Assert\NotBlank(message="Le champ lastname est obligatoire.")
      * @ORM\Column(type="string", length=128)
      */
     private $lastname;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $createdAt;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $updatedAt;
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTime('now');
+        $this->updatedAt = new \DateTime('now');
+    }
 
     public function getId(): ?int
     {
@@ -161,6 +210,30 @@ class User implements UserInterface
     public function setLastname(string $lastname): self
     {
         $this->lastname = $lastname;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }
